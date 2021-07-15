@@ -13,8 +13,8 @@ public class Parser <T> {
 
     public Map<String, String> parseObjectToMap( T object) throws IllegalAccessException {
         Map<String, String> fielder = new HashMap<>();
-
         Field[] fields = object.getClass().getDeclaredFields();
+
         for (Field field : fields) {
             field.setAccessible(true);
             Object fildValue = field.get(object);
@@ -37,17 +37,12 @@ public class Parser <T> {
 
         for (Field field : fields) {
             field.setAccessible(true);
-            Object fieldType = field.getType();
             FieldName annotation = field.getDeclaredAnnotation(FieldName.class);
 
             if (!Objects.isNull(annotation)) {
-                if(stringFields.containsKey(annotation.name())) {
-                    setStringFieldToInstance(field, stringFields.get(annotation.name()),instance);
-                } else {
-                    field.set(instance, stringFields.get(field.getName()));
-                }
+                    setStringFieldToInstance(field, stringFields.get(annotation.name()), instance);
             } else {
-                field.set(instance, stringFields.get(field.getName()));
+                setStringFieldToInstance(field, stringFields.get(field.getName()), instance);
             }
         }
         return instance;
@@ -77,5 +72,4 @@ public class Parser <T> {
         }
         return value;
     }
-
 }

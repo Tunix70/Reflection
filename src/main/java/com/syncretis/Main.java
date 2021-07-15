@@ -16,15 +16,31 @@ public class Main {
         House house = new House(12, "TSK");
         Auto auto = new Auto("Red", "BMW");
 
-        Map<String, String> parserMap = parser.parseObjectToMap(auto);
+        Map<String, String> personMap = parser.parseObjectToMap(person);
+        Map<String, String> houseMap = parser.parseObjectToMap(house);
+        Map<String, String> autoMap = parser.parseObjectToMap(auto);
 
-        for (Map.Entry<String, String> entry : parserMap.entrySet()) {
-            System.out.println(entry);
+        for (Map.Entry<String, String> entryPerson : personMap.entrySet()) {
+            System.out.print(entryPerson + " ");
         }
+        System.out.println();
+        for (Map.Entry<String, String> entryHouse : houseMap.entrySet()) {
+            System.out.print(entryHouse + " ");
+        }
+
+        System.out.println();
+        for (Map.Entry<String, String> entryAuto : autoMap.entrySet()) {
+            System.out.print(entryAuto + " ");
+        }
+        System.out.println();
         System.out.println("================================");
 
-        Object person1 =  parser.perseMapToObject(parserMap, Auto.class);
-        System.out.println(person1);
+        Object personInstance =  parser.perseMapToObject(personMap, Person.class);
+        Object houseInstance =  parser.perseMapToObject(houseMap, House.class);
+        Object autoInstance =  parser.perseMapToObject(autoMap, Auto.class);
+        System.out.println(personInstance);
+        System.out.println(houseInstance);
+        System.out.println(autoInstance);
 
     }
 }
