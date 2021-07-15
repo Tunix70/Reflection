@@ -2,13 +2,14 @@ package com.syncretis.util;
 
 import com.syncretis.annotation.FieldName;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
 public class Parser <T> {
-
 
     public Map<String, String> parseObjectToMap( T object) throws IllegalAccessException {
         Map<String, String> fielder = new HashMap<>();
@@ -17,10 +18,10 @@ public class Parser <T> {
         for (Field field : fields) {
             field.setAccessible(true);
             Object fildValue = field.get(object);
-            FieldName fieldName  =  field.getDeclaredAnnotation(FieldName.class);
+            FieldName annotationdName  =  field.getDeclaredAnnotation(FieldName.class);
 
-            if(!Objects.isNull(fieldName)) {
-                fielder.put(fieldName.name(), String.valueOf(fildValue));
+            if(!Objects.isNull(annotationdName)) {
+                fielder.put(annotationdName.name(), String.valueOf(fildValue));
             } else {
                 fielder.put(field.getName(), String.valueOf(fildValue));
             }
@@ -28,17 +29,20 @@ public class Parser <T> {
         return fielder;
     }
 
-    public T perseMapToObject(Map<String, String> stringFields, T type) throws IllegalAccessException {
-        T instance = new Object<T>();
+    public <T> T perseMapToObject(Map<String, String> stringFields, Class<T> type) throws IllegalAccessException, InstantiationException, NoSuchMethodException, InvocationTargetException {
+        Constructor<T> constructor = type.getConstructor();
+        T instance = constructor.newInstance();
+
         Field[] fields = instance.getClass().getDeclaredFields();
 
         for (Field field : fields) {
             field.setAccessible(true);
+            Object fieldType = field.getType();
             FieldName annotation = field.getDeclaredAnnotation(FieldName.class);
 
             if (!Objects.isNull(annotation)) {
                 if(stringFields.containsKey(annotation.name())) {
-                    field.set(instance, stringFields.get(annotation.name()));
+                    setStringFieldToInstance(field, stringFields.get(annotation.name()),instance);
                 } else {
                     field.set(instance, stringFields.get(field.getName()));
                 }
@@ -48,4 +52,30 @@ public class Parser <T> {
         }
         return instance;
     }
+
+    public void setStringFieldToInstance(Field field, String fieldValue, Object instance) throws IllegalAccessException {
+        if(!(field.getType() == String.class)){
+            Object objValue = parseTypeFromString(field.getType(), fieldValue);
+            field.set(instance, objValue);
+        } else{
+            field.set(instance, fieldValue);
+        }
+    }
+
+    public Object parseTypeFromString(Class clazz, String value){
+        if(Boolean.class == clazz ) {
+            return Boolean.parseBoolean(value);
+        }
+        if(Integer.class == clazz || Integer.TYPE == clazz) {
+            return Integer.parseInt(value);
+        }
+        if(Long.class == clazz) {
+            return Long.parseLong(value);
+        }
+        if(Double.class == clazz) {
+            return Double.parseDouble(value);
+        }
+        return value;
+    }
+
 }
